@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,33 +17,90 @@
                 <li><a href="contact.html">Contact Us</a></li>
             </ul>
         </nav>
-    </header><section id="home">
-    <h2>Our Mission</h2>
-    <p>Providing exceptional property-related services with professionalism and care.</p>
-    <div class="services">
-        <div class="service">
-            <img src="images/property_transfers.jpg" alt="Property Transfers">
-            <h3>Property Transfers</h3>
-            <p>We handle all legal aspects of transferring property ownership.</p>
+    </header>
+    
+    <section id="home">
+        <h2>Our Mission</h2>
+        <p>Providing exceptional property-related services with professionalism and care.</p>
+        <div class="services">
+            <div class="service">
+                <img src="images/property_transfers.jpg" alt="Property Transfers">
+                <h3>Property Transfers</h3>
+                <p>We handle all legal aspects of transferring property ownership.</p>
+            </div>
+            <div class="service">
+                <img src="images/deceased_estate.jpg" alt="Deceased Estate Transfers">
+                <h3>Deceased Estate Transfers</h3>
+                <p>Expert assistance in managing property within estates.</p>
+            </div>
+            <div class="service">
+                <img src="images/property_sales.jpg" alt="Property Sales Assistance">
+                <h3>Property Sales Assistance</h3>
+                <p>Helping you navigate the process of selling property efficiently.</p>
+            </div>
         </div>
-        <div class="service">
-            <img src="images/deceased_estate.jpg" alt="Deceased Estate Transfers">
-            <h3>Deceased Estate Transfers</h3>
-            <p>Expert assistance in managing property within estates.</p>
+    </section>
+    
+    <section id="about">
+        <h2>About Us</h2>
+        <p>We are committed to providing top-tier property services with integrity and professionalism.</p>
+        <div class="team">
+            <div class="member">
+                <h3>Gavin</h3>
+                <p>An experienced attorney and conveyancer ensuring smooth property transactions.</p>
+            </div>
+            <div class="member">
+                <h3>Tania</h3>
+                <p>Customer relations expert dedicated to providing outstanding support and guidance.</p>
+            </div>
         </div>
-        <div class="service">
-            <img src="images/property_sales.jpg" alt="Property Sales Assistance">
-            <h3>Property Sales Assistance</h3>
-            <p>Helping you navigate the process of selling property efficiently.</p>
-        </div>
-    </div>
-</section>
-
-<footer>
-    <p>Contact us: (Phone) | (Email) | (Social Media Links)</p>
-</footer>
-
-<script src="js/script.js"></script>
-
+    </section>
+    
+    <section id="services">
+        <h2>Our Services</h2>
+        <ul>
+            <li><strong>Property Transfers:</strong> Handling all legal aspects of property transfers.</li>
+            <li><strong>Deceased Estate Transfers:</strong> Managing estate property transitions.</li>
+            <li><strong>Property Sales Assistance:</strong> Helping with property sale processes.</li>
+            <li><strong>Shortfall Assistance:</strong> Providing solutions for financial shortfalls in property transactions.</li>
+        </ul>
+        <h3>Why Choose Us?</h3>
+        <p>We offer professional, reliable, and efficient property services tailored to your needs.</p>
+    </section>
+    
+    <section id="contact">
+        <h2>Contact Us</h2>
+        <form>
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+            
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+            
+            <label for="message">Message:</label>
+            <textarea id="message" name="message" required></textarea>
+            
+            <button type="submit">Send</button>
+        </form>
+        
+        <h3>Cost Calculator</h3>
+        <label for="service">Select Service:</label>
+        <select id="service">
+            <option value="transfer">Property Transfers - R500/hr</option>
+            <option value="estate">Deceased Estate Transfers - R600/hr</option>
+            <option value="sales">Property Sales Assistance - R550/hr</option>
+            <option value="shortfall">Shortfall Assistance - R450/hr</option>
+        </select>
+        <label for="hours">Hours:</label>
+        <input type="number" id="hours" min="1" value="1">
+        <button type="button" onclick="calculateCost()">Calculate</button>
+        <p>Total Cost: <span id="total-cost">R0</span></p>
+    </section>
+    
+    <footer>
+        <p>Contact us: (Phone) | (Email) | (Social Media Links)</p>
+    </footer>
+    
+    <script src="js/script.js"></script>
 </body>
 </html>
