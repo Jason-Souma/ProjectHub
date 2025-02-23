@@ -20,3 +20,23 @@ document.querySelector("button[onclick='calculateCost()']").addEventListener("cl
 
 });
 
+function calculateTransferCosts() {
+    const purchasePrice = parseFloat(document.getElementById('purchase-price').value);
+    const loanAmount = parseFloat(document.getElementById('loan-amount').value);
+    const propertyType = document.getElementById('property-type').value;
+    const sellerVAT = document.getElementById('seller-vat').value;
+    const purchaserStatus = document.getElementById('purchaser-status').value;
+
+    // Placeholder calculations
+    const bondCost = loanAmount * 0.01; // Example: 1% of loan amount
+    const transferCost = purchasePrice * 0.02; // Example: 2% of purchase price
+
+    const totalCost = bondCost + transferCost;
+
+    document.getElementById('bond-cost').textContent = bondCost.toFixed(2);
+    document.getElementById('transfer-cost').textContent = transferCost.toFixed(2);
+    document.getElementById('total-cost').textContent = totalCost.toFixed(2);
+
+    document.getElementById('results').style.display = 'block';
+}
+
