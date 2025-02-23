@@ -83,19 +83,44 @@
             <button type="submit">Send</button>
         </form>
         
-        <h3>Cost Calculator</h3>
-        <label for="service">Select Service:</label>
-        <select id="service">
-            <option value="transfer">Property Transfers - R500/hr</option>
-            <option value="estate">Deceased Estate Transfers - R600/hr</option>
-            <option value="sales">Property Sales Assistance - R550/hr</option>
-            <option value="shortfall">Shortfall Assistance - R450/hr</option>
+        <section id="cost-calculator">
+    <h2>Property Transfer Cost Calculator</h2>
+    <form id="calculator-form">
+        <label for="purchase-price">Purchase Price (including VAT):</label>
+        <input type="number" id="purchase-price" name="purchase-price" required>
+
+        <label for="loan-amount">Loan Amount:</label>
+        <input type="number" id="loan-amount" name="loan-amount" required>
+
+        <label for="property-type">Type of Property Ownership:</label>
+        <select id="property-type" name="property-type" required>
+            <option value="freehold">Freehold</option>
+            <option value="sectional">Sectional</option>
         </select>
-        <label for="hours">Hours:</label>
-        <input type="number" id="hours" min="1" value="1">
-        <button type="button" onclick="calculateCost()">Calculate</button>
-        <p>Total Cost: <span id="total-cost">R0</span></p>
-    </section>
+
+        <label for="seller-vat">Seller Registered for VAT:</label>
+        <select id="seller-vat" name="seller-vat" required>
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+        </select>
+
+        <label for="purchaser-status">Status of Purchaser:</label>
+        <select id="purchaser-status" name="purchaser-status" required>
+            <option value="natural">Natural Person</option>
+            <option value="company">Company</option>
+            <option value="cc">Closed Corporation</option>
+            <option value="trust">Trust</option>
+        </select>
+
+        <button type="button" onclick="calculateTransferCosts()">Calculate</button>
+    </form>
+
+    <div id="results" style="display:none;">
+        <h3>Total Costs (including VAT): R<span id="total-cost">0.00</span></h3>
+        <p>Bond Registration Costs (incl. VAT): R<span id="bond-cost">0.00</span></p>
+        <p>Transfer Costs (incl. VAT): R<span id="transfer-cost">0.00</span></p>
+    </div>
+</section>
     
     <footer>
         <p>Contact us: (Phone) | (Email) | (Social Media Links)</p>
