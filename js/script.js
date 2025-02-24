@@ -1,42 +1,57 @@
-/* script.js */
+// Wait for the DOM to load before running scripts
+document.addEventListener("DOMContentLoaded", function() {
+  // Set up Intersection Observer for fade-in and slide-in animations
+  const observerOptions = {
+    threshold: 0.1
+  };
 
-document.addEventListener("DOMContentLoaded", function() { // Smooth scrolling for navigation links document.querySelectorAll("nav ul li a").forEach(anchor => { anchor.addEventListener("click", function(event) { event.preventDefault(); const targetId = this.getAttribute("href").substring(1); document.getElementById(targetId).scrollIntoView({ behavior: "smooth" }); }); });
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in-view');
+        // Optionally, unobserve if you want the animation to trigger only once:
+        // observer.unobserve(entry.target);
+      }
+    });
+  }, observerOptions);
 
-// Cost calculator functionality
-document.querySelector("button[onclick='calculateCost()']").addEventListener("click", function() {
-    const serviceRates = {
-        transfer: 500,
-        estate: 600,
-        sales: 550,
-        shortfall: 450
-    };
-    
-    let selectedService = document.getElementById("service").value;
-    let hours = parseInt(document.getElementById("hours").value) || 0;
-    let totalCost = serviceRates[selectedService] * hours;
-    
-    document.getElementById("total-cost").textContent = `R${totalCost}`;
+  const animatedElements = document.querySelectorAll('.fade-in, .slide-in');
+  animatedElements.forEach(el => observer.observe(el));
 });
 
-});
+// Cost Calculator Function
+function calculateCost() {
+  // Define hourly rates for each service (feel free to adjust these values)
+  const ratePropertyTransfers = 150;
+  const rateDiseasedEstate = 200;
+  const ratePropertySales = 100;
+  const rateShortfall = 80;
 
-function calculateTransferCosts() {
-    const purchasePrice = parseFloat(document.getElementById('purchase-price').value);
-    const loanAmount = parseFloat(document.getElementById('loan-amount').value);
-    const propertyType = document.getElementById('property-type').value;
-    const sellerVAT = document.getElementById('seller-vat').value;
-    const purchaserStatus = document.getElementById('purchaser-status').value;
+  // Retrieve hour inputs (defaulting to 0 if empty)
+  const hoursPropertyTransfers = parseFloat(document.getElementById('hoursPropertyTransfers').value) || 0;
+  const hoursDiseasedEstate = parseFloat(document.getElementById('hoursDiseasedEstate').value) || 0;
+  const hoursPropertySales = parseFloat(document.getElementById('hoursPropertySales').value) || 0;
+  const hoursShortfall = parseFloat(document.getElementById('hoursShortfall').value) || 0;
 
-    // Placeholder calculations
-    const bondCost = loanAmount * 0.01; // Example: 1% of loan amount
-    const transferCost = purchasePrice * 0.02; // Example: 2% of purchase price
+  // Calculate individual costs
+  const costPropertyTransfers = hoursPropertyTransfers * ratePropertyTransfers;
+  const costDiseasedEstate = hoursDiseasedEstate * rateDiseasedEstate;
+  const costPropertySales = hoursPropertySales * ratePropertySales;
+  const costShortfall = hoursShortfall * rateShortfall;
 
-    const totalCost = bondCost + transferCost;
+  // Total cost
+  const totalCost = costPropertyTransfers + costDiseasedEstate + costPropertySales + costShortfall;
 
-    document.getElementById('bond-cost').textContent = bondCost.toFixed(2);
-    document.getElementById('transfer-cost').textContent = transferCost.toFixed(2);
-    document.getElementById('total-cost').textContent = totalCost.toFixed(2);
-
-    document.getElementById('results').style.display = 'block';
+  // Display the result with a breakdown
+  const resultDiv = document.getElementById('calculatorResult');
+  resultDiv.innerHTML = `
+    <h3>Total Cost: $${totalCost.toFixed(2)}</h3>
+    <p>Breakdown:</p>
+    <ul>
+      <li>Property Transfers: $${costPropertyTransfers.toFixed(2)}</li>
+      <li>Diseased Estate Transfers: $${costDiseasedEstate.toFixed(2)}</li>
+      <li>Property Sales Assistance: $${costPropertySales.toFixed(2)}</li>
+      <li>Shortfall Assistance: $${costShortfall.toFixed(2)}</li>
+    </ul>
+  `;
 }
-
