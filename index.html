@@ -1,131 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Property Services</title>
-    <link rel="stylesheet" href="css/styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Company - Home</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <header>
-        <h1>Welcome to Our Property Services</h1>
-        <nav>
-            <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="about.html">About Us</a></li>
-                <li><a href="services.html">Services</a></li>
-                <li><a href="contact.html">Contact Us</a></li>
-            </ul>
-        </nav>
-    </header>
-    
-    <section id="home">
-        <h2>Our Mission</h2>
-        <p>Providing exceptional property-related services with professionalism and care.</p>
-        <div class="services">
-            <div class="service">
-                <img src="images/property_transfers.jpg" alt="Property Transfers">
-                <h3>Property Transfers</h3>
-                <p>We handle all legal aspects of transferring property ownership.</p>
-            </div>
-            <div class="service">
-                <img src="images/deceased_estate.jpg" alt="Deceased Estate Transfers">
-                <h3>Deceased Estate Transfers</h3>
-                <p>Expert assistance in managing property within estates.</p>
-            </div>
-            <div class="service">
-                <img src="images/property_sales.jpg" alt="Property Sales Assistance">
-                <h3>Property Sales Assistance</h3>
-                <p>Helping you navigate the process of selling property efficiently.</p>
-            </div>
-        </div>
+  <!-- Top Navigation -->
+  <header>
+    <nav class="navbar">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="services.html">Services</a></li>
+        <li><a href="contact.html">Contact Us</a></li>
+      </ul>
+      <div class="contact-info">
+        <span>Phone: (123) 456-7890</span>
+        <span>Email: info@company.com</span>
+        <span>Social: @company</span>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <section class="mission fade-in">
+      <h1>Our Mission</h1>
+      <p>
+        We strive to provide unparalleled property and estate transfer services with a commitment to excellence, integrity, and innovation. Our team is dedicated to ensuring smooth transitions and optimal results for all our clients.
+      </p>
     </section>
-    
-    <section id="about">
-        <h2>About Us</h2>
-        <p>We are committed to providing top-tier property services with integrity and professionalism.</p>
-        <div class="team">
-            <div class="member">
-                <h3>Gavin</h3>
-                <p>An experienced attorney and conveyancer ensuring smooth property transactions.</p>
-            </div>
-            <div class="member">
-                <h3>Tania</h3>
-                <p>Customer relations expert dedicated to providing outstanding support and guidance.</p>
-            </div>
-        </div>
+
+    <section class="services-summary">
+      <h2>Our Services</h2>
+      <div class="service-item slide-in">
+        <img src="images/property-transfers.jpg" alt="Property Transfers">
+        <h3>Property Transfers</h3>
+        <p>Efficient and secure property transfer services to meet your needs.</p>
+      </div>
+      <div class="service-item slide-in">
+        <img src="images/diseased-estate.jpg" alt="Diseased Estate Transfers">
+        <h3>Diseased Estate Transfers</h3>
+        <p>Compassionate handling of estate transfers during challenging times.</p>
+      </div>
+      <div class="service-item slide-in">
+        <img src="images/property-sales.jpg" alt="Property Sales Assistance">
+        <h3>Property Sales Assistance</h3>
+        <p>Expert guidance in property sales to achieve the best outcomes.</p>
+      </div>
     </section>
-    
-    <section id="services">
-        <h2>Our Services</h2>
-        <ul>
-            <li><strong>Property Transfers:</strong> Handling all legal aspects of property transfers.</li>
-            <li><strong>Deceased Estate Transfers:</strong> Managing estate property transitions.</li>
-            <li><strong>Property Sales Assistance:</strong> Helping with property sale processes.</li>
-            <li><strong>Shortfall Assistance:</strong> Providing solutions for financial shortfalls in property transactions.</li>
-        </ul>
-        <h3>Why Choose Us?</h3>
-        <p>We offer professional, reliable, and efficient property services tailored to your needs.</p>
-    </section>
-    
-    <section id="contact">
-        <h2>Contact Us</h2>
-        <form>
-            <label for="name">Name:</label>
-            <input type="text" id="name" name="name" required>
-            
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required>
-            
-            <label for="message">Message:</label>
-            <textarea id="message" name="message" required></textarea>
-            
-            <button type="submit">Send</button>
-        </form>
-        
-        <section id="cost-calculator">
-    <h2>Property Transfer Cost Calculator</h2>
-    <form id="calculator-form">
-        <label for="purchase-price">Purchase Price (including VAT):</label>
-        <input type="number" id="purchase-price" name="purchase-price" required>
+  </main>
 
-        <label for="loan-amount">Loan Amount:</label>
-        <input type="number" id="loan-amount" name="loan-amount" required>
-
-        <label for="property-type">Type of Property Ownership:</label>
-        <select id="property-type" name="property-type" required>
-            <option value="freehold">Freehold</option>
-            <option value="sectional">Sectional</option>
-        </select>
-
-        <label for="seller-vat">Seller Registered for VAT:</label>
-        <select id="seller-vat" name="seller-vat" required>
-            <option value="no">No</option>
-            <option value="yes">Yes</option>
-        </select>
-
-        <label for="purchaser-status">Status of Purchaser:</label>
-        <select id="purchaser-status" name="purchaser-status" required>
-            <option value="natural">Natural Person</option>
-            <option value="company">Company</option>
-            <option value="cc">Closed Corporation</option>
-            <option value="trust">Trust</option>
-        </select>
-
-        <button type="button" onclick="calculateTransferCosts()">Calculate</button>
-    </form>
-
-    <div id="results" style="display:none;">
-        <h3>Total Costs (including VAT): R<span id="total-cost">0.00</span></h3>
-        <p>Bond Registration Costs (incl. VAT): R<span id="bond-cost">0.00</span></p>
-        <p>Transfer Costs (incl. VAT): R<span id="transfer-cost">0.00</span></p>
+  <!-- Footer with Quick Links -->
+  <footer>
+    <div class="footer-links">
+      <a href="index.html">Home</a>
+      <a href="about.html">About Us</a>
+      <a href="services.html">Services</a>
+      <a href="contact.html">Contact Us</a>
     </div>
-</section>
-    
-    <footer>
-        <p>Contact us: (Phone) | (Email) | (Social Media Links)</p>
-    </footer>
-    
-    <script src="js/script.js"></script>
+    <div class="footer-contact">
+      <p>Phone: (123) 456-7890 | Email: info@company.com | Social: @company</p>
+    </div>
+  </footer>
+
+  <script src="js/script.js"></script>
 </body>
 </html>
