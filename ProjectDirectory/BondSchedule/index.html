@@ -1,374 +1,375 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Home Loan Calculator</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Chart.js for visualizations -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+import React, { useState, useEffect, useCallback } from 'react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import * as SliderPrimitive from '@radix-ui/react-slider'; // Using Radix UI for Slider
+import * as InputPrimitive from '@radix-ui/react-input'; // Using Radix UI for Input
 
-    <!-- Custom Font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+// Helper function to format currency
+const formatCurrency = (value) => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'ZAR',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+};
 
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        /* Custom slider styles */
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 24px;
-            height: 24px;
-            background: #1D4ED8; /* blue-700 */
-            cursor: pointer;
-            border-radius: 50%;
-            border: 4px solid #fff;
-            box-shadow: 0 0 5px rgba(0,0,0,0.2);
-        }
-        input[type="range"]::-moz-range-thumb {
-            width: 24px;
-            height: 24px;
-            background: #1D4ED8;
-            cursor: pointer;
-            border-radius: 50%;
-            border: 4px solid #fff;
-            box-shadow: 0 0 5px rgba(0,0,0,0.2);
-        }
-    </style>
-</head>
-<body class="bg-gray-50 text-gray-800">
+// Helper function to format percentage (not used directly in display but good for consistency)
+const formatPercentage = (value) => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'percent',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value / 100);
+};
 
-    <div class="container mx-auto p-4 md:p-8">
-        <header class="text-center mb-10">
-            <h1 class="text-4xl md:text-5xl font-bold text-blue-800">Home Loan Calculator</h1>
-            <p class="text-lg text-gray-600 mt-2">Visualize your path to homeownership and financial freedom.</p>
-        </header>
+// Custom Slider component using Radix UI primitives and Tailwind CSS
+const Slider = React.forwardRef(({ className, ...props }, ref) => (
+  <SliderPrimitive.Root
+    ref={ref}
+    className={`relative flex w-full touch-none select-none items-center ${className}`}
+    {...props}
+  >
+    <SliderPrimitive.Track className="relative h-1.5 w-full grow overflow-hidden rounded-full bg-gray-600">
+      <SliderPrimitive.Range className="absolute h-full bg-purple-500" />
+    </SliderPrimitive.Track>
+    <SliderPrimitive.Thumb className="block h-4 w-4 rounded-full border border-purple-500 bg-purple-500 shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-purple-500 disabled:pointer-events-none disabled:opacity-50" />
+  </SliderPrimitive.Root>
+));
+Slider.displayName = SliderPrimitive.Root.displayName;
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Left Panel: Inputs -->
-            <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-lg self-start">
-                <h2 class="text-2xl font-bold mb-6 border-b pb-4 text-gray-700">Loan Parameters</h2>
-                
-                <div class="mb-4">
-                    <label for="principal" class="block text-sm font-medium text-gray-600 mb-1">Principal Amount (R)</label>
-                    <input type="number" id="principal" value="300000" class="w-full p-3 bg-gray-100 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
-                </div>
 
-                <div class="mb-4">
-                    <label for="interestRate" class="block text-sm font-medium text-gray-600 mb-1">Interest Rate (%)</label>
-                    <input type="number" id="interestRate" value="5.5" step="0.01" class="w-full p-3 bg-gray-100 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
-                </div>
+// Main App Component
+const App = () => {
+  // Input states
+  const [principal, setPrincipal] = useState(200000); // Initial loan amount
+  const [loanTermYears, setLoanTermYears] = useState(30); // Loan term in years
+  const [interestRate, setInterestRate] = useState(4.5); // Annual interest rate percentage
+  const [paymentFrequency, setPaymentFrequency] = useState('monthly'); // 'monthly' or 'bi-weekly'
+  const [extraPayment, setExtraPayment] = useState(0); // Extra monthly repayment
 
-                <div class="mb-4">
-                    <label for="loanTerm" class="block text-sm font-medium text-gray-600 mb-1">Loan Term (Years)</label>
-                    <input type="number" id="loanTerm" value="30" class="w-full p-3 bg-gray-100 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
-                </div>
+  // Calculated states
+  const [monthlyPayment, setMonthlyPayment] = useState(0); // Estimated payment per period
+  const [totalInterestPaid, setTotalInterestPaid] = useState(0); // Total interest paid over loan life
+  const [totalTimeMonths, setTotalTimeMonths] = useState(0); // Total number of payments (periods)
+  const [amortizationSchedule, setAmortizationSchedule] = useState([]); // Detailed payment schedule
+  const [chartData, setChartData] = useState([]); // Data for the payment breakdown chart
 
-                <div class="mb-6">
-                    <label for="paymentFrequency" class="block text-sm font-medium text-gray-600 mb-1">Payment Frequency</label>
-                    <select id="paymentFrequency" class="w-full p-3 bg-gray-100 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
-                        <option value="12" selected>Monthly</option>
-                        <option value="26">Bi-Weekly</option>
-                        <option value="52">Weekly</option>
-                    </select>
-                </div>
+  // Function to calculate loan details and amortization schedule
+  const calculateLoan = useCallback(() => {
+    let P = parseFloat(principal); // Principal amount
+    let annualRate = parseFloat(interestRate) / 100; // Annual interest rate as decimal
+    let N = parseFloat(loanTermYears); // Loan term in years
+    let extra = parseFloat(extraPayment); // Extra payment per period
 
-                <div class="mb-4">
-                    <div class="flex justify-between items-center mb-2">
-                        <label for="extraPayment" class="text-sm font-medium text-gray-600">Extra Payment</label>
-                        <span id="extraPaymentValue" class="font-bold text-blue-700 text-lg">R0</span>
-                    </div>
-                    <input type="range" id="extraPayment" min="0" max="50000" step="500" value="0" class="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer range-lg">
-                </div>
-            </div>
+    // Validate inputs
+    if (isNaN(P) || isNaN(annualRate) || isNaN(N) || P <= 0 || annualRate < 0 || N <= 0) {
+      // Reset all calculated states if inputs are invalid
+      setMonthlyPayment(0);
+      setTotalInterestPaid(0);
+      setTotalTimeMonths(0);
+      setAmortizationSchedule([]);
+      setChartData([]);
+      return;
+    }
 
-            <!-- Right Panel: Visualizations & Summary -->
-            <div class="lg:col-span-2">
-                <!-- Summary Cards -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                    <div class="bg-white p-5 rounded-2xl shadow-md text-center">
-                        <h3 class="text-sm font-medium text-gray-500 uppercase">Scheduled Payment</h3>
-                        <p id="scheduledPayment" class="text-2xl font-bold text-blue-800">R0.00</p>
-                    </div>
-                    <div class="bg-white p-5 rounded-2xl shadow-md text-center">
-                        <h3 class="text-sm font-medium text-gray-500 uppercase">Total Interest</h3>
-                        <p id="totalInterest" class="text-2xl font-bold text-red-600">R0.00</p>
-                    </div>
-                     <div class="bg-white p-5 rounded-2xl shadow-md text-center">
-                        <h3 class="text-sm font-medium text-gray-500 uppercase">Interest Saved</h3>
-                        <p id="interestSaved" class="text-2xl font-bold text-teal-600">R0.00</p>
-                    </div>
-                    <div class="bg-white p-5 rounded-2xl shadow-md text-center">
-                        <h3 class="text-sm font-medium text-gray-500 uppercase">Payoff Time</h3>
-                        <p id="payoffTime" class="text-2xl font-bold text-green-600">0 years</p>
-                    </div>
-                </div>
+    let periodicRate; // Interest rate per payment period
+    let totalPeriods; // Total number of payment periods
+    let paymentsPerYear; // Number of payments in a year
 
-                <!-- Charts -->
-                <div class="grid grid-cols-1 xl:grid-cols-5 gap-8 mb-8">
-                    <div class="xl:col-span-2 bg-white p-6 rounded-2xl shadow-lg">
-                         <h3 class="text-xl font-bold mb-4 text-center">Cost Breakdown</h3>
-                         <div class="relative h-80">
-                            <canvas id="breakdownChart"></canvas>
-                         </div>
-                    </div>
-                    <div class="xl:col-span-3 bg-white p-6 rounded-2xl shadow-lg">
-                        <h3 class="text-xl font-bold mb-4 text-center">Balance Over Time</h3>
-                        <div class="relative h-80">
-                            <canvas id="balanceChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Amortization Table -->
-                <div class="bg-white p-6 rounded-2xl shadow-lg">
-                    <h2 class="text-2xl font-bold mb-4">Amortization Schedule</h2>
-                    <div class="overflow-auto max-h-[40rem] relative">
-                        <table class="w-full text-sm text-left text-gray-500">
-                            <thead class="text-xs text-gray-700 uppercase bg-gray-100 sticky top-0">
-                                <tr>
-                                    <th scope="col" class="px-6 py-3 rounded-l-lg">#</th>
-                                    <th scope="col" class="px-6 py-3">Payment</th>
-                                    <th scope="col" class="px-6 py-3">Principal</th>
-                                    <th scope="col" class="px-6 py-3">Interest</th>
-                                    <th scope="col" class="px-6 py-3 rounded-r-lg">Balance</th>
-                                </tr>
-                            </thead>
-                            <tbody id="amortizationTableBody">
-                                <!-- Rows will be generated by JavaScript -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    // Determine periodic rate and total periods based on payment frequency
+    switch (paymentFrequency) {
+      case 'monthly':
+        periodicRate = annualRate / 12;
+        totalPeriods = N * 12;
+        paymentsPerYear = 12;
+        break;
+      case 'bi-weekly':
+        periodicRate = annualRate / 26; // Assuming 26 bi-weekly periods in a year
+        totalPeriods = N * 26;
+        paymentsPerYear = 26;
+        break;
+      default:
+        // Default to monthly if frequency is unrecognized
+        periodicRate = annualRate / 12;
+        totalPeriods = N * 12;
+        paymentsPerYear = 12;
+    }
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // --- DOM ELEMENT REFERENCES ---
-            const principalEl = document.getElementById('principal');
-            const interestRateEl = document.getElementById('interestRate');
-            const loanTermEl = document.getElementById('loanTerm');
-            const paymentFrequencyEl = document.getElementById('paymentFrequency');
-            const extraPaymentEl = document.getElementById('extraPayment');
-            const extraPaymentValueEl = document.getElementById('extraPaymentValue');
+    let calculatedPeriodicPayment = 0;
+    if (periodicRate === 0) {
+      // Handle zero interest rate: simple division of principal by total periods
+      calculatedPeriodicPayment = P / totalPeriods;
+    } else {
+      // Standard loan payment formula (M = P [ i(1 + i)^n ] / [ (1 + i)^n – 1])
+      calculatedPeriodicPayment = P * (periodicRate * Math.pow(1 + periodicRate, totalPeriods)) / (Math.pow(1 + periodicRate, totalPeriods) - 1);
+    }
 
-            const scheduledPaymentEl = document.getElementById('scheduledPayment');
-            const totalInterestEl = document.getElementById('totalInterest');
-            const interestSavedEl = document.getElementById('interestSaved');
-            const payoffTimeEl = document.getElementById('payoffTime');
-            const amortizationTableBodyEl = document.getElementById('amortizationTableBody');
+    // Set the estimated payment for display
+    setMonthlyPayment(calculatedPeriodicPayment);
 
-            // --- CHART.JS INSTANCES ---
-            let breakdownChart, balanceChart;
+    let balance = P; // Current remaining loan balance
+    let totalInterest = 0; // Accumulator for total interest paid
+    let schedule = []; // Array to store amortization schedule entries
+    let currentPaymentNumber = 0; // Counter for payment periods
+    let chartDataPoints = []; // Data for the chart visualization
 
-            // --- HELPER FUNCTIONS ---
-            const formatCurrency = (value) => new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR' }).format(value);
-            const addDays = (date, days) => {
-                const result = new Date(date);
-                result.setDate(result.getDate() + days);
-                return result;
-            };
+    // Maximum iterations to prevent infinite loops in extreme scenarios (e.g., very small payments)
+    const maxIterations = totalPeriods * 2; // Allow up to double the original term
 
-            /**
-             * Generates an amortization schedule and loan metrics.
-             * @returns {object} An object containing loan calculation results.
-             */
-            function generateAmortization(principal, periodicInterestRate, totalPayments, paymentsPerYear, scheduledPayment, extraPayment) {
-                let balance = principal;
-                let totalInterestPaid = 0;
-                let actualPayments = 0;
-                const amortizationData = [];
-                const startDate = new Date();
-                const balanceHistory = [{ x: startDate.getTime(), y: principal }];
-                let currentDate = new Date(startDate);
-                const maxPayments = totalPayments * 2; // Safety break
+    // Loop through payments until balance is paid off or max iterations reached
+    while (balance > 0.01 && currentPaymentNumber < maxIterations) {
+      currentPaymentNumber++; // Increment payment period
+      const interestThisPeriod = balance * periodicRate; // Interest for the current period
+      
+      // Calculate effective payment including extra payment
+      let effectivePayment = calculatedPeriodicPayment + extra;
+      let effectivePrincipalPayment = effectivePayment - interestThisPeriod;
 
-                while (balance > 0 && actualPayments < maxPayments) {
-                    actualPayments++;
-                    
-                    if (paymentsPerYear === 12) { // Monthly
-                        currentDate = new Date(startDate.getFullYear(), startDate.getMonth() + actualPayments, startDate.getDate());
-                    } else if (paymentsPerYear === 26) { // Bi-weekly
-                        currentDate = addDays(startDate, actualPayments * 14);
-                    } else { // Weekly
-                        currentDate = addDays(startDate, actualPayments * 7);
-                    }
+      // Adjust for the last payment: ensure we don't overpay
+      if (balance + interestThisPeriod <= effectivePayment) {
+        effectivePrincipalPayment = balance; // Pay off remaining principal
+        effectivePayment = balance + interestThisPeriod; // Total payment for the final period
+      }
 
-                    const interestForPeriod = balance * periodicInterestRate;
-                    const totalPaymentThisPeriod = scheduledPayment + extraPayment;
-                    let principalPaid = totalPaymentThisPeriod - interestForPeriod;
+      // Ensure principal payment is not negative
+      if (effectivePrincipalPayment < 0) {
+        effectivePrincipalPayment = 0;
+      }
 
-                    if (balance + interestForPeriod <= totalPaymentThisPeriod) {
-                        principalPaid = balance;
-                        balance = 0;
-                    } else {
-                        balance -= principalPaid;
-                    }
-                    totalInterestPaid += interestForPeriod;
-                    
-                    if (amortizationData.length < 1000) {
-                        amortizationData.push({
-                            paymentNumber: actualPayments,
-                            payment: principalPaid + interestForPeriod,
-                            principal: principalPaid,
-                            interest: interestForPeriod,
-                            balance: balance,
-                        });
-                    }
-                    
-                    if (actualPayments % Math.ceil(paymentsPerYear / 4) === 0 || balance <= 0) {
-                        balanceHistory.push({ x: currentDate.getTime(), y: balance });
-                    }
-                }
-                
-                if (balanceHistory[balanceHistory.length - 1].y > 0) {
-                    balanceHistory.push({ x: currentDate.getTime(), y: 0 });
-                }
+      balance -= effectivePrincipalPayment; // Deduct principal paid from balance
+      totalInterest += interestThisPeriod; // Add interest to total interest paid
 
-                return { totalInterestPaid, actualPayments, amortizationData, balanceHistory };
-            }
-            
-            // --- CORE CALCULATION LOGIC ---
-            function calculateLoanDetails() {
-                const principal = parseFloat(principalEl.value) || 0;
-                const annualInterestRate = parseFloat(interestRateEl.value) || 0;
-                const loanTermYears = parseInt(loanTermEl.value) || 0;
-                const paymentsPerYear = parseInt(paymentFrequencyEl.value) || 12;
-                const extraPayment = parseFloat(extraPaymentEl.value) || 0;
+      // Correct balance for floating point inaccuracies, ensuring it doesn't go negative
+      if (balance < 0) {
+        effectivePrincipalPayment += balance; // Adjust principal paid to make balance exactly 0
+        balance = 0;
+      }
 
-                if (principal <= 0 || annualInterestRate <= 0 || loanTermYears <= 0) {
-                    resetUI();
-                    return;
-                }
+      // Add current period's data to the amortization schedule
+      schedule.push({
+        period: currentPaymentNumber,
+        payment: effectivePayment,
+        principalPaid: effectivePrincipalPayment,
+        interestPaid: interestThisPeriod,
+        remainingBalance: balance,
+      });
 
-                const periodicInterestRate = (annualInterestRate / 100) / paymentsPerYear;
-                const totalPayments = loanTermYears * paymentsPerYear;
-                
-                const scheduledPayment = principal * (periodicInterestRate * Math.pow(1 + periodicInterestRate, totalPayments)) / (Math.pow(1 + periodicInterestRate, totalPayments) - 1);
-
-                // Generate two scenarios: one without extra payments (original) and one with.
-                const originalLoan = generateAmortization(principal, periodicInterestRate, totalPayments, paymentsPerYear, scheduledPayment, 0);
-                const currentLoan = generateAmortization(principal, periodicInterestRate, totalPayments, paymentsPerYear, scheduledPayment, extraPayment);
-                
-                const interestSaved = originalLoan.totalInterestPaid - currentLoan.totalInterestPaid;
-
-                updateSummary(scheduledPayment, currentLoan.totalInterestPaid, interestSaved, currentLoan.actualPayments, paymentsPerYear);
-                updateAmortizationTable(currentLoan.amortizationData);
-                updateCharts(principal, currentLoan.totalInterestPaid, originalLoan.balanceHistory, currentLoan.balanceHistory);
-            }
-            
-            // --- UI UPDATE FUNCTIONS ---
-            function resetUI() {
-                scheduledPaymentEl.textContent = formatCurrency(0);
-                totalInterestEl.textContent = formatCurrency(0);
-                interestSavedEl.textContent = formatCurrency(0);
-                payoffTimeEl.textContent = '0 years';
-                amortizationTableBodyEl.innerHTML = '<tr><td colspan="5" class="text-center p-8">Enter valid loan details to see the schedule.</td></tr>';
-                if (breakdownChart) breakdownChart.destroy();
-                if (balanceChart) balanceChart.destroy();
-            }
-
-            function updateSummary(scheduledPayment, totalInterest, interestSaved, actualPayments, paymentsPerYear) {
-                scheduledPaymentEl.textContent = formatCurrency(scheduledPayment);
-                totalInterestEl.textContent = formatCurrency(totalInterest);
-                interestSavedEl.textContent = formatCurrency(interestSaved > 0 ? interestSaved : 0);
-                
-                const years = Math.floor(actualPayments / paymentsPerYear);
-                const months = Math.round((actualPayments % paymentsPerYear) / paymentsPerYear * 12);
-                payoffTimeEl.textContent = `${years} years, ${months} months`;
-            }
-
-            function updateAmortizationTable(data) {
-                amortizationTableBodyEl.innerHTML = data.map(row => `
-                    <tr class="bg-white border-b hover:bg-gray-50">
-                        <td class="px-6 py-4 font-medium text-gray-900">${row.paymentNumber}</td>
-                        <td class="px-6 py-4 text-blue-600 font-semibold">${formatCurrency(row.payment)}</td>
-                        <td class="px-6 py-4">${formatCurrency(row.principal)}</td>
-                        <td class="px-6 py-4 text-red-500">${formatCurrency(row.interest)}</td>
-                        <td class="px-6 py-4 font-semibold">${formatCurrency(row.balance)}</td>
-                    </tr>
-                `).join('');
-            }
-
-            function updateCharts(principal, totalInterest, originalBalanceHistory, currentBalanceHistory) {
-                // Breakdown Chart (Doughnut)
-                const breakdownCtx = document.getElementById('breakdownChart').getContext('2d');
-                if (breakdownChart) breakdownChart.destroy();
-                breakdownChart = new Chart(breakdownCtx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Principal', 'Total Interest'],
-                        datasets: [{
-                            data: [principal, totalInterest],
-                            backgroundColor: ['#1D4ED8', '#DC2626'],
-                            borderColor: '#FFFFFF',
-                            borderWidth: 4,
-                        }]
-                    },
-                    options: {
-                        responsive: true, maintainAspectRatio: false, cutout: '60%',
-                        plugins: { legend: { position: 'bottom', labels: { padding: 20, font: { size: 14 }}}}
-                    }
-                });
-
-                // Balance Chart (Line)
-                const balanceCtx = document.getElementById('balanceChart').getContext('2d');
-                if (balanceChart) balanceChart.destroy();
-                balanceChart = new Chart(balanceCtx, {
-                    type: 'line',
-                    data: {
-                        datasets: [{
-                            label: 'Original Loan',
-                            data: originalBalanceHistory,
-                            borderColor: '#9CA3AF', // gray-400
-                            borderDash: [5, 5],
-                            fill: false,
-                            tension: 0.4,
-                            pointRadius: 0,
-                        }, {
-                            label: 'With Extra Payments',
-                            data: currentBalanceHistory,
-                            borderColor: '#1D4ED8', // blue-700
-                            backgroundColor: 'rgba(29, 78, 216, 0.1)',
-                            fill: true,
-                            tension: 0.4,
-                            pointRadius: 0,
-                        }]
-                    },
-                    options: {
-                        responsive: true, maintainAspectRatio: false,
-                        scales: {
-                            x: { type: 'time', time: { unit: 'year' }, grid: { display: false }, ticks: { font: { size: 12 }}},
-                            y: { beginAtZero: true, ticks: { callback: (value) => `R${(value/1000)}k`, font: { size: 12 }}}
-                        },
-                        plugins: { legend: { position: 'bottom', labels: { padding: 20, usePointStyle: true }}}
-                    }
-                });
-            }
-
-            // --- EVENT LISTENERS ---
-            const inputs = [principalEl, interestRateEl, loanTermEl, paymentFrequencyEl, extraPaymentEl];
-            inputs.forEach(el => el.addEventListener('input', calculateLoanDetails));
-            
-            extraPaymentEl.addEventListener('input', (e) => {
-                extraPaymentValueEl.textContent = formatCurrency(e.target.value);
-            });
-
-            // --- INITIAL CALCULATION ---
-            calculateLoanDetails();
+      // Add data for chart visualization. If bi-weekly, aggregate to monthly for cleaner chart.
+      if (paymentFrequency === 'monthly' || currentPaymentNumber % (paymentsPerYear / 12) === 0) {
+        chartDataPoints.push({
+          period: Math.ceil(currentPaymentNumber / (paymentsPerYear / 12)), // Use a monthly equivalent for chart X-axis
+          principal: effectivePrincipalPayment,
+          interest: interestThisPeriod,
         });
-    </script>
+      }
+    }
 
-</body>
-</html>
+    // Update state with calculated results
+    setTotalInterestPaid(totalInterest);
+    setTotalTimeMonths(currentPaymentNumber); // Total number of periods taken to repay
+    setAmortizationSchedule(schedule);
+    setChartData(chartDataPoints);
 
+  }, [principal, loanTermYears, interestRate, paymentFrequency, extraPayment]); // Dependencies for useCallback
+
+  // Effect hook to recalculate loan details whenever any input changes
+  useEffect(() => {
+    calculateLoan();
+  }, [calculateLoan]); // Dependency on calculateLoan to re-run when its dependencies change
+
+  // Event handlers for input changes
+  const handlePrincipalChange = (e) => setPrincipal(parseFloat(e.target.value || 0));
+  const handleLoanTermYearsChange = (e) => setLoanTermYears(parseFloat(e.target.value || 0));
+  const handleInterestRateChange = (e) => setInterestRate(parseFloat(e.target.value || 0));
+  const handlePaymentFrequencyChange = (e) => setPaymentFrequency(e.target.value);
+  const handleExtraPaymentChange = (e) => setExtraPayment(parseFloat(e.target.value || 0));
+  const handleExtraPaymentSliderChange = (value) => setExtraPayment(value[0]); // Slider returns an array
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-700 text-gray-100 font-inter p-4 sm:p-8 rounded-lg shadow-lg">
+      <h1 className="text-4xl font-bold text-center mb-8 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
+        Home Loan Simulator
+      </h1>
+
+      <div className="max-w-6xl mx-auto bg-gray-800 bg-opacity-70 rounded-xl p-6 sm:p-8 shadow-2xl border border-gray-700">
+        {/* Input Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+          {/* Principal Amount Input */}
+          <div className="flex flex-col">
+            <label htmlFor="principal" className="text-gray-300 text-sm font-medium mb-2">
+              Principal Amount
+            </label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">$</span>
+              <input
+                id="principal"
+                type="number"
+                value={principal}
+                onChange={handlePrincipalChange}
+                className="w-full p-3 pl-8 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-100 placeholder-gray-400"
+                placeholder="e.g., 200000"
+              />
+            </div>
+          </div>
+
+          {/* Loan Term Input */}
+          <div className="flex flex-col">
+            <label htmlFor="loanTermYears" className="text-gray-300 text-sm font-medium mb-2">
+              Loan Term (Years)
+            </label>
+            <input
+              id="loanTermYears"
+              type="number"
+              value={loanTermYears}
+              onChange={handleLoanTermYearsChange}
+              className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-100 placeholder-gray-400"
+              placeholder="e.g., 30"
+            />
+          </div>
+
+          {/* Interest Rate Input */}
+          <div className="flex flex-col">
+            <label htmlFor="interestRate" className="text-gray-300 text-sm font-medium mb-2">
+              Interest Rate (Annual %)
+            </label>
+            <div className="relative">
+              <input
+                id="interestRate"
+                type="number"
+                step="0.01"
+                value={interestRate}
+                onChange={handleInterestRateChange}
+                className="w-full p-3 pr-8 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-100 placeholder-gray-400"
+                placeholder="e.g., 4.5"
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">%</span>
+            </div>
+          </div>
+
+          {/* Payment Frequency Select */}
+          <div className="flex flex-col">
+            <label htmlFor="paymentFrequency" className="text-gray-300 text-sm font-medium mb-2">
+              Payment Frequency
+            </label>
+            <select
+              id="paymentFrequency"
+              value={paymentFrequency}
+              onChange={handlePaymentFrequencyChange}
+              className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-100"
+            >
+              <option value="monthly">Monthly</option>
+              <option value="bi-weekly">Bi-Weekly</option>
+            </select>
+          </div>
+
+          {/* Extra Monthly Repayment Input and Slider */}
+          <div className="flex flex-col col-span-1 md:col-span-2">
+            <label htmlFor="extraPayment" className="text-gray-300 text-sm font-medium mb-2">
+              Extra Monthly Repayment
+            </label>
+            <div className="flex items-center gap-4">
+              <div className="relative flex-grow">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">$</span>
+                <input
+                  id="extraPayment"
+                  type="number"
+                  value={extraPayment}
+                  onChange={handleExtraPaymentChange}
+                  className="w-full p-3 pl-8 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-100 placeholder-gray-400"
+                  placeholder="e.g., 100"
+                />
+              </div>
+              <Slider
+                className="w-full flex-grow-2" // Tailwind classes for width and flex grow
+                min={0}
+                max={5000} // Max extra payment, adjust as needed
+                step={10}
+                value={[extraPayment]} // Slider expects an array for value
+                onValueChange={handleExtraPaymentSliderChange}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Results Section */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 text-center">
+          {/* Estimated Payment Card */}
+          <div className="bg-gray-700 p-6 rounded-xl shadow-md border border-gray-600">
+            <h3 className="text-lg font-semibold text-gray-300 mb-2">Estimated Payment ({paymentFrequency === 'monthly' ? 'Monthly' : 'Per Period'})</h3>
+            <p className="text-3xl font-bold text-green-400">{formatCurrency(monthlyPayment)}</p>
+          </div>
+          {/* Total Interest Paid Card */}
+          <div className="bg-gray-700 p-6 rounded-xl shadow-md border border-gray-600">
+            <h3 className="text-lg font-semibold text-gray-300 mb-2">Total Interest Paid</h3>
+            <p className="text-3xl font-bold text-red-400">{formatCurrency(totalInterestPaid)}</p>
+          </div>
+          {/* Total Time to Repay Card */}
+          <div className="bg-gray-700 p-6 rounded-xl shadow-md border border-gray-600">
+            <h3 className="text-lg font-semibold text-gray-300 mb-2">Total Time to Repay</h3>
+            <p className="text-3xl font-bold text-blue-400">
+              {/* Convert total periods to years and months for display */}
+              {Math.floor(totalTimeMonths / (paymentFrequency === 'monthly' ? 12 : 26))} Years{' '}
+              {Math.round((totalTimeMonths % (paymentFrequency === 'monthly' ? 12 : 26)) / (paymentFrequency === 'monthly' ? 1 : 2.16))} Months
+            </p>
+          </div>
+        </div>
+
+        {/* Loan Repayment Visualization (Bar Chart) */}
+        <div className="mb-10 bg-gray-700 p-6 rounded-xl shadow-md border border-gray-600">
+          <h2 className="text-2xl font-bold text-gray-100 mb-4 text-center">Payment Breakdown Over Time</h2>
+          <ResponsiveContainer width="100%" height={400}>
+            <BarChart
+              data={chartData}
+              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="#4a4a4a" /> {/* Grid lines */}
+              <XAxis dataKey="period" stroke="#bbb" /> {/* X-axis for periods */}
+              <YAxis stroke="#bbb" tickFormatter={(value) => formatCurrency(value)} /> {/* Y-axis for currency */}
+              <Tooltip
+                // Custom formatter for tooltip content
+                formatter={(value, name) => [`${formatCurrency(value)}`, name === 'principal' ? 'Principal' : 'Interest']}
+                labelFormatter={(label) => `Period: ${label}`} // Label for tooltip
+                contentStyle={{ backgroundColor: '#333', border: 'none', borderRadius: '8px' }} // Tooltip styling
+                labelStyle={{ color: '#eee' }}
+              />
+              <Legend wrapperStyle={{ color: '#eee' }} /> {/* Legend styling */}
+              <Bar dataKey="principal" stackId="a" fill="#8884d8" name="Principal Paid" radius={[4, 4, 0, 0]} /> {/* Principal bar */}
+              <Bar dataKey="interest" stackId="a" fill="#82ca9d" name="Interest Paid" radius={[4, 4, 0, 0]} /> {/* Interest bar */}
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Amortization Schedule Table */}
+        <div className="bg-gray-700 p-6 rounded-xl shadow-md border border-gray-600 overflow-x-auto">
+          <h2 className="text-2xl font-bold text-gray-100 mb-4 text-center">Amortization Schedule</h2>
+          <div className="max-h-[500px] overflow-y-auto custom-scrollbar"> {/* Scrollable container for table */}
+            <table className="w-full text-left table-auto">
+              <thead className="sticky top-0 bg-gray-800 text-gray-300 uppercase text-sm leading-normal">
+                <tr>
+                  <th className="py-3 px-6 text-left rounded-tl-lg">Period</th>
+                  <th className="py-3 px-6 text-left">Payment</th>
+                  <th className="py-3 px-6 text-left">Principal Paid</th>
+                  <th className="py-3 px-6 text-left">Interest Paid</th>
+                  <th className="py-3 px-6 text-left rounded-tr-lg">Remaining Balance</th>
+                </tr>
+              </thead>
+              <tbody className="text-gray-200 text-sm font-light">
+                {amortizationSchedule.map((item, index) => (
+                  <tr key={index} className="border-b border-gray-600 hover:bg-gray-600 transition-colors duration-200">
+                    <td className="py-3 px-6 whitespace-nowrap">{item.period}</td>
+                    <td className="py-3 px-6">{formatCurrency(item.payment)}</td>
+                    <td className="py-3 px-6">{formatCurrency(item.principalPaid)}</td>
+                    <td className="py-3 px-6">{formatCurrency(item.interestPaid)}</td>
+                    <td className="py-3 px-6">{formatCurrency(item.remainingBalance)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default App;
