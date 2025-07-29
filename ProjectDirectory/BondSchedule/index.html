@@ -96,12 +96,12 @@
 
             <!-- Extra Monthly Repayments -->
             <div class="bg-gray-700 p-6 rounded-lg shadow-md col-span-1 md:col-span-2 lg:col-span-2">
-                <label for="extraPayment" class="block text-gray-300 text-lg font-semibold mb-2">Extra Monthly Repayments</label>
+                <label for="extraPayment" class="block text-gray-300 text-lg font-semibold mb-2">Extra Monthly Repayments (ZAR)</label>
                 <input type="number" id="extraPayment" value="0" min="0" class="w-full p-3 bg-gray-900 text-blue-300 border border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 mb-4">
                 <input type="range" id="extraPaymentSlider" min="0" max="5000" value="0" step="100" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer">
                 <div class="flex justify-between text-sm text-gray-400 mt-2">
-                    <span>R0</span>
-                    <span>R5,000+</span>
+                    <span>ZAR 0</span>
+                    <span>ZAR 5,000+</span>
                 </div>
             </div>
         </div>
@@ -195,7 +195,7 @@
             const formatZARCurrency = (amount) => {
                 return new Intl.NumberFormat('en-ZA', {
                     style: 'currency',
-                    currency: 'R',
+                    currency: 'ZAR',
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2
                 }).format(amount);
