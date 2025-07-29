@@ -96,12 +96,12 @@
 
             <!-- Extra Monthly Repayments -->
             <div class="bg-gray-700 p-6 rounded-lg shadow-md col-span-1 md:col-span-2 lg:col-span-2">
-                <label for="extraPayment" class="block text-gray-300 text-lg font-semibold mb-2">Extra Monthly Repayments ()</label>
+                <label for="extraPayment" class="block text-gray-300 text-lg font-semibold mb-2">Extra Monthly Repayments</label>
                 <input type="number" id="extraPayment" value="0" min="0" class="w-full p-3 bg-gray-900 text-blue-300 border border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 mb-4">
                 <input type="range" id="extraPaymentSlider" min="0" max="5000" value="0" step="100" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer">
                 <div class="flex justify-between text-sm text-gray-400 mt-2">
-                    <span> 0</span>
-                    <span> 5,000+</span>
+                    <span>R0</span>
+                    <span>R5,000+</span>
                 </div>
             </div>
         </div>
@@ -112,15 +112,15 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center mb-8">
                 <div class="bg-gray-700 p-5 rounded-lg shadow-inner">
                     <p class="text-gray-400 text-lg">Estimated Monthly Payment</p>
-                    <p id="monthlyPaymentDisplay" class="text-3xl font-bold text-green-400 mt-2"> 0.00</p>
+                    <p id="monthlyPaymentDisplay" class="text-3xl font-bold text-green-400 mt-2">R0.00</p>
                 </div>
                 <div class="bg-gray-700 p-5 rounded-lg shadow-inner">
                     <p class="text-gray-400 text-lg">Total Interest Paid</p>
-                    <p id="totalInterestDisplay" class="text-3xl font-bold text-red-400 mt-2"> 0.00</p>
+                    <p id="totalInterestDisplay" class="text-3xl font-bold text-red-400 mt-2">R0.00</p>
                 </div>
                 <div class="bg-gray-700 p-5 rounded-lg shadow-inner">
                     <p class="text-gray-400 text-lg">Interest Saved</p>
-                    <p id="interestSavedDisplay" class="text-3xl font-bold text-green-400 mt-2"> 0.00</p>
+                    <p id="interestSavedDisplay" class="text-3xl font-bold text-green-400 mt-2">R0.00</p>
                 </div>
                 <!-- Total Time to Repay - now always spans full width for centering -->
                 <div class="bg-gray-700 p-5 rounded-lg shadow-inner col-span-full">
@@ -146,16 +146,16 @@
                                 Period
                             </th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                Payment ()
+                                Payment
                             </th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                Principal Paid ()
+                                Principal Paid
                             </th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                Interest Paid ()
+                                Interest Paid
                             </th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                Remaining Balance ()
+                                Remaining Balance
                             </th>
                         </tr>
                     </thead>
@@ -193,12 +193,14 @@
              * @returns {string} The formatted currency string.
              */
             const formatZARCurrency = (amount) => {
+                // Use 'narrowSymbol' for the currency display, which typically puts the symbol right next to the number.
+                // For ZAR, 'narrowSymbol' is 'R'.
                 return new Intl.NumberFormat('en-ZA', {
                     style: 'currency',
-                    currency: 'R',
+                    currency: 'ZAR',
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2
-                }).format(amount);
+                }).format(amount).replace(/\s/g, '');
             };
 
             /**
