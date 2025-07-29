@@ -5,11 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive Home Loan Calculator</title>
     
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
+    <!-- Chart.js for visualizations -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 
+    <!-- Custom Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -18,80 +21,60 @@
         body {
             font-family: 'Inter', sans-serif;
         }
-        /* Custom slider styles for darker theme */
+        /* Custom slider styles */
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
             width: 24px;
             height: 24px;
-            background: #6D28D9; /* Violet-700 for thumb */
+            background: #1D4ED8; /* blue-700 */
             cursor: pointer;
             border-radius: 50%;
-            border: 4px solid #1A202C; /* Dark background color for border */
-            box-shadow: 0 0 8px rgba(109, 40, 217, 0.6); /* Glow effect */
+            border: 4px solid #fff;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
         }
         input[type="range"]::-moz-range-thumb {
             width: 24px;
             height: 24px;
-            background: #6D28D9; /* Violet-700 */
+            background: #1D4ED8;
             cursor: pointer;
             border-radius: 50%;
-            border: 4px solid #1A202C;
-            box-shadow: 0 0 8px rgba(109, 40, 217, 0.6);
-        }
-        /* Track styles */
-        input[type="range"]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 8px;
-            background: rgba(109, 40, 217, 0.3); /* Transparent violet */
-            border-radius: 4px;
-        }
-        input[type="range"]::-moz-range-track {
-            width: 100%;
-            height: 8px;
-            background: rgba(109, 40, 217, 0.3);
-            border-radius: 4px;
+            border: 4px solid #fff;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-gray-900 to-indigo-950 text-gray-100 min-h-screen">
+<body class="bg-gray-50 text-gray-800">
 
     <div class="container mx-auto p-4 md:p-8">
         <header class="text-center mb-10">
-            <h1 class="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Home Loan Calculator</h1>
-            <p class="text-lg text-gray-300 mt-2">Visualize your path to homeownership and financial freedom.</p>
+            <h1 class="text-4xl md:text-5xl font-bold text-blue-800">Home Loan Calculator</h1>
+            <p class="text-lg text-gray-600 mt-2">Visualize your path to homeownership and financial freedom.</p>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="lg:col-span-1 bg-gray-800/70 backdrop-blur-sm p-6 rounded-2xl shadow-2xl self-start border border-gray-700">
-                <h2 class="text-2xl font-bold mb-6 border-b border-gray-700 pb-4 text-gray-200">Loan Parameters</h2>
+            <!-- Left Panel: Inputs -->
+            <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-lg self-start">
+                <h2 class="text-2xl font-bold mb-6 border-b pb-4 text-gray-700">Loan Parameters</h2>
                 
-                <div class="mb-5">
-                    <label for="principal" class="block text-sm font-medium text-gray-300 mb-2">Principal Amount (R)</label>
-                    <input type="number" id="principal" value="300000" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition text-gray-50 placeholder-gray-400">
+                <div class="mb-4">
+                    <label for="principal" class="block text-sm font-medium text-gray-600 mb-1">Principal Amount (R)</label>
+                    <input type="number" id="principal" value="300000" class="w-full p-3 bg-gray-100 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
                 </div>
 
-                <div class="mb-5">
-                    <div class="flex justify-between items-center mb-2">
-                        <label for="interestRate" class="text-sm font-medium text-gray-300">Interest Rate (%)</label>
-                        <span id="interestRateValue" class="font-bold text-blue-400 text-lg">5.5%</span>
-                    </div>
-                    <input type="range" id="interestRate" min="1" max="20" step="0.1" value="5.5" class="w-full h-3 bg-indigo-700/50 rounded-lg appearance-none cursor-pointer range-lg">
-                    <input type="number" id="interestRateInput" value="5.5" step="0.01" class="w-full p-3 mt-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition text-gray-50 placeholder-gray-400">
+                <div class="mb-4">
+                    <label for="interestRate" class="block text-sm font-medium text-gray-600 mb-1">Interest Rate (%)</label>
+                    <input type="number" id="interestRate" value="5.5" step="0.01" class="w-full p-3 bg-gray-100 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
                 </div>
 
-                <div class="mb-5">
-                    <div class="flex justify-between items-center mb-2">
-                        <label for="loanTerm" class="text-sm font-medium text-gray-300">Loan Term (Years)</label>
-                        <span id="loanTermValue" class="font-bold text-purple-400 text-lg">30 years</span>
-                    </div>
-                    <input type="range" id="loanTerm" min="5" max="40" step="1" value="30" class="w-full h-3 bg-purple-700/50 rounded-lg appearance-none cursor-pointer range-lg">
-                    <input type="number" id="loanTermInput" value="30" class="w-full p-3 mt-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition text-gray-50 placeholder-gray-400">
+                <div class="mb-4">
+                    <label for="loanTerm" class="block text-sm font-medium text-gray-600 mb-1">Loan Term (Years)</label>
+                    <input type="number" id="loanTerm" value="30" class="w-full p-3 bg-gray-100 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
                 </div>
 
                 <div class="mb-6">
-                    <label for="paymentFrequency" class="block text-sm font-medium text-gray-300 mb-2">Payment Frequency</label>
-                    <select id="paymentFrequency" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition text-gray-50">
+                    <label for="paymentFrequency" class="block text-sm font-medium text-gray-600 mb-1">Payment Frequency</label>
+                    <select id="paymentFrequency" class="w-full p-3 bg-gray-100 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
                         <option value="12" selected>Monthly</option>
                         <option value="26">Bi-Weekly</option>
                         <option value="52">Weekly</option>
@@ -100,53 +83,57 @@
 
                 <div class="mb-4">
                     <div class="flex justify-between items-center mb-2">
-                        <label for="extraPayment" class="text-sm font-medium text-gray-300">Extra Payment</label>
-                        <span id="extraPaymentValue" class="font-bold text-teal-400 text-lg">R0</span>
+                        <label for="extraPayment" class="text-sm font-medium text-gray-600">Extra Payment</label>
+                        <span id="extraPaymentValue" class="font-bold text-blue-700 text-lg">R0</span>
                     </div>
-                    <input type="range" id="extraPayment" min="0" max="50000" step="500" value="0" class="w-full h-3 bg-green-700/50 rounded-lg appearance-none cursor-pointer range-lg">
+                    <input type="range" id="extraPayment" min="0" max="50000" step="500" value="0" class="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer range-lg">
                 </div>
             </div>
 
+            <!-- Right Panel: Visualizations & Summary -->
             <div class="lg:col-span-2">
+                <!-- Summary Cards -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                    <div class="bg-gray-800/70 backdrop-blur-sm p-5 rounded-2xl shadow-lg text-center border border-gray-700">
-                        <h3 class="text-sm font-medium text-gray-400 uppercase">Scheduled Payment</h3>
-                        <p id="scheduledPayment" class="text-2xl font-bold text-blue-400 mt-1">R0.00</p>
+                    <div class="bg-white p-5 rounded-2xl shadow-md text-center">
+                        <h3 class="text-sm font-medium text-gray-500 uppercase">Scheduled Payment</h3>
+                        <p id="scheduledPayment" class="text-2xl font-bold text-blue-800">R0.00</p>
                     </div>
-                    <div class="bg-gray-800/70 backdrop-blur-sm p-5 rounded-2xl shadow-lg text-center border border-gray-700">
-                        <h3 class="text-sm font-medium text-gray-400 uppercase">Total Interest</h3>
-                        <p id="totalInterest" class="text-2xl font-bold text-red-400 mt-1">R0.00</p>
+                    <div class="bg-white p-5 rounded-2xl shadow-md text-center">
+                        <h3 class="text-sm font-medium text-gray-500 uppercase">Total Interest</h3>
+                        <p id="totalInterest" class="text-2xl font-bold text-red-600">R0.00</p>
                     </div>
-                     <div class="bg-gray-800/70 backdrop-blur-sm p-5 rounded-2xl shadow-lg text-center border border-gray-700">
-                        <h3 class="text-sm font-medium text-gray-400 uppercase">Interest Saved</h3>
-                        <p id="interestSaved" class="text-2xl font-bold text-teal-400 mt-1">R0.00</p>
+                     <div class="bg-white p-5 rounded-2xl shadow-md text-center">
+                        <h3 class="text-sm font-medium text-gray-500 uppercase">Interest Saved</h3>
+                        <p id="interestSaved" class="text-2xl font-bold text-teal-600">R0.00</p>
                     </div>
-                    <div class="bg-gray-800/70 backdrop-blur-sm p-5 rounded-2xl shadow-lg text-center border border-gray-700">
-                        <h3 class="text-sm font-medium text-gray-400 uppercase">Payoff Time</h3>
-                        <p id="payoffTime" class="text-2xl font-bold text-green-400 mt-1">0 years</p>
+                    <div class="bg-white p-5 rounded-2xl shadow-md text-center">
+                        <h3 class="text-sm font-medium text-gray-500 uppercase">Payoff Time</h3>
+                        <p id="payoffTime" class="text-2xl font-bold text-green-600">0 years</p>
                     </div>
                 </div>
 
+                <!-- Charts -->
                 <div class="grid grid-cols-1 xl:grid-cols-5 gap-8 mb-8">
-                    <div class="xl:col-span-2 bg-gray-800/70 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-gray-700">
-                         <h3 class="text-xl font-bold mb-4 text-center text-gray-200">Cost Breakdown</h3>
+                    <div class="xl:col-span-2 bg-white p-6 rounded-2xl shadow-lg">
+                         <h3 class="text-xl font-bold mb-4 text-center">Cost Breakdown</h3>
                          <div class="relative h-80">
                             <canvas id="breakdownChart"></canvas>
                          </div>
                     </div>
-                    <div class="xl:col-span-3 bg-gray-800/70 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-gray-700">
-                        <h3 class="text-xl font-bold mb-4 text-center text-gray-200">Balance Over Time</h3>
+                    <div class="xl:col-span-3 bg-white p-6 rounded-2xl shadow-lg">
+                        <h3 class="text-xl font-bold mb-4 text-center">Balance Over Time</h3>
                         <div class="relative h-80">
                             <canvas id="balanceChart"></canvas>
                         </div>
                     </div>
                 </div>
                 
-                <div class="bg-gray-800/70 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-gray-700">
-                    <h2 class="text-2xl font-bold mb-4 text-gray-200">Amortization Schedule</h2>
+                <!-- Amortization Table -->
+                <div class="bg-white p-6 rounded-2xl shadow-lg">
+                    <h2 class="text-2xl font-bold mb-4">Amortization Schedule</h2>
                     <div class="overflow-auto max-h-[40rem] relative">
-                        <table class="w-full text-sm text-left text-gray-300">
-                            <thead class="text-xs text-gray-400 uppercase bg-gray-700 sticky top-0">
+                        <table class="w-full text-sm text-left text-gray-500">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-100 sticky top-0">
                                 <tr>
                                     <th scope="col" class="px-6 py-3 rounded-l-lg">#</th>
                                     <th scope="col" class="px-6 py-3">Payment</th>
@@ -155,8 +142,9 @@
                                     <th scope="col" class="px-6 py-3 rounded-r-lg">Balance</th>
                                 </tr>
                             </thead>
-                            <tbody id="amortizationTableBody" class="divide-y divide-gray-700">
-                                </tbody>
+                            <tbody id="amortizationTableBody">
+                                <!-- Rows will be generated by JavaScript -->
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -169,11 +157,7 @@
             // --- DOM ELEMENT REFERENCES ---
             const principalEl = document.getElementById('principal');
             const interestRateEl = document.getElementById('interestRate');
-            const interestRateInputEl = document.getElementById('interestRateInput');
-            const interestRateValueEl = document.getElementById('interestRateValue');
             const loanTermEl = document.getElementById('loanTerm');
-            const loanTermInputEl = document.getElementById('loanTermInput');
-            const loanTermValueEl = document.getElementById('loanTermValue');
             const paymentFrequencyEl = document.getElementById('paymentFrequency');
             const extraPaymentEl = document.getElementById('extraPayment');
             const extraPaymentValueEl = document.getElementById('extraPaymentValue');
@@ -232,8 +216,7 @@
                     }
                     totalInterestPaid += interestForPeriod;
                     
-                    // Only push a limited number of rows to the table for performance
-                    if (amortizationData.length < 1000) { 
+                    if (amortizationData.length < 1000) {
                         amortizationData.push({
                             paymentNumber: actualPayments,
                             payment: principalPaid + interestForPeriod,
@@ -243,13 +226,11 @@
                         });
                     }
                     
-                    // Sample balance history points for chart
                     if (actualPayments % Math.ceil(paymentsPerYear / 4) === 0 || balance <= 0) {
                         balanceHistory.push({ x: currentDate.getTime(), y: balance });
                     }
                 }
                 
-                // Ensure the chart ends at 0 balance
                 if (balanceHistory[balanceHistory.length - 1].y > 0) {
                     balanceHistory.push({ x: currentDate.getTime(), y: 0 });
                 }
@@ -260,18 +241,10 @@
             // --- CORE CALCULATION LOGIC ---
             function calculateLoanDetails() {
                 const principal = parseFloat(principalEl.value) || 0;
-                const annualInterestRate = parseFloat(interestRateInputEl.value) || parseFloat(interestRateEl.value) || 0;
-                const loanTermYears = parseInt(loanTermInputEl.value) || parseInt(loanTermEl.value) || 0;
+                const annualInterestRate = parseFloat(interestRateEl.value) || 0;
+                const loanTermYears = parseInt(loanTermEl.value) || 0;
                 const paymentsPerYear = parseInt(paymentFrequencyEl.value) || 12;
                 const extraPayment = parseFloat(extraPaymentEl.value) || 0;
-
-                // Update slider values based on input fields if they were manually changed
-                interestRateEl.value = annualInterestRate;
-                loanTermEl.value = loanTermYears;
-
-                // Update slider value displays
-                interestRateValueEl.textContent = `${annualInterestRate.toFixed(1)}%`;
-                loanTermValueEl.textContent = `${loanTermYears} years`;
 
                 if (principal <= 0 || annualInterestRate <= 0 || loanTermYears <= 0) {
                     resetUI();
@@ -281,13 +254,7 @@
                 const periodicInterestRate = (annualInterestRate / 100) / paymentsPerYear;
                 const totalPayments = loanTermYears * paymentsPerYear;
                 
-                // Handle edge case for 0 interest rate to prevent division by zero
-                let scheduledPayment;
-                if (periodicInterestRate === 0) {
-                    scheduledPayment = principal / totalPayments;
-                } else {
-                    scheduledPayment = principal * (periodicInterestRate * Math.pow(1 + periodicInterestRate, totalPayments)) / (Math.pow(1 + periodicInterestRate, totalPayments) - 1);
-                }
+                const scheduledPayment = principal * (periodicInterestRate * Math.pow(1 + periodicInterestRate, totalPayments)) / (Math.pow(1 + periodicInterestRate, totalPayments) - 1);
 
                 // Generate two scenarios: one without extra payments (original) and one with.
                 const originalLoan = generateAmortization(principal, periodicInterestRate, totalPayments, paymentsPerYear, scheduledPayment, 0);
@@ -306,7 +273,7 @@
                 totalInterestEl.textContent = formatCurrency(0);
                 interestSavedEl.textContent = formatCurrency(0);
                 payoffTimeEl.textContent = '0 years';
-                amortizationTableBodyEl.innerHTML = '<tr><td colspan="5" class="text-center p-8 text-gray-400">Enter valid loan details to see the schedule.</td></tr>';
+                amortizationTableBodyEl.innerHTML = '<tr><td colspan="5" class="text-center p-8">Enter valid loan details to see the schedule.</td></tr>';
                 if (breakdownChart) breakdownChart.destroy();
                 if (balanceChart) balanceChart.destroy();
             }
@@ -317,18 +284,18 @@
                 interestSavedEl.textContent = formatCurrency(interestSaved > 0 ? interestSaved : 0);
                 
                 const years = Math.floor(actualPayments / paymentsPerYear);
-                const months = Math.round(((actualPayments % paymentsPerYear) / paymentsPerYear) * 12);
+                const months = Math.round((actualPayments % paymentsPerYear) / paymentsPerYear * 12);
                 payoffTimeEl.textContent = `${years} years, ${months} months`;
             }
 
             function updateAmortizationTable(data) {
                 amortizationTableBodyEl.innerHTML = data.map(row => `
-                    <tr class="bg-gray-800/50 border-b border-gray-700 hover:bg-gray-700/50 transition-colors duration-200">
-                        <td class="px-6 py-4 font-medium text-gray-200">${row.paymentNumber}</td>
-                        <td class="px-6 py-4 text-blue-300 font-semibold">${formatCurrency(row.payment)}</td>
-                        <td class="px-6 py-4 text-gray-300">${formatCurrency(row.principal)}</td>
-                        <td class="px-6 py-4 text-red-300">${formatCurrency(row.interest)}</td>
-                        <td class="px-6 py-4 font-semibold text-gray-100">${formatCurrency(row.balance)}</td>
+                    <tr class="bg-white border-b hover:bg-gray-50">
+                        <td class="px-6 py-4 font-medium text-gray-900">${row.paymentNumber}</td>
+                        <td class="px-6 py-4 text-blue-600 font-semibold">${formatCurrency(row.payment)}</td>
+                        <td class="px-6 py-4">${formatCurrency(row.principal)}</td>
+                        <td class="px-6 py-4 text-red-500">${formatCurrency(row.interest)}</td>
+                        <td class="px-6 py-4 font-semibold">${formatCurrency(row.balance)}</td>
                     </tr>
                 `).join('');
             }
@@ -338,4 +305,70 @@
                 const breakdownCtx = document.getElementById('breakdownChart').getContext('2d');
                 if (breakdownChart) breakdownChart.destroy();
                 breakdownChart = new Chart(breakdownCtx, {
-                    type: 'd
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Principal', 'Total Interest'],
+                        datasets: [{
+                            data: [principal, totalInterest],
+                            backgroundColor: ['#1D4ED8', '#DC2626'],
+                            borderColor: '#FFFFFF',
+                            borderWidth: 4,
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false, cutout: '60%',
+                        plugins: { legend: { position: 'bottom', labels: { padding: 20, font: { size: 14 }}}}
+                    }
+                });
+
+                // Balance Chart (Line)
+                const balanceCtx = document.getElementById('balanceChart').getContext('2d');
+                if (balanceChart) balanceChart.destroy();
+                balanceChart = new Chart(balanceCtx, {
+                    type: 'line',
+                    data: {
+                        datasets: [{
+                            label: 'Original Loan',
+                            data: originalBalanceHistory,
+                            borderColor: '#9CA3AF', // gray-400
+                            borderDash: [5, 5],
+                            fill: false,
+                            tension: 0.4,
+                            pointRadius: 0,
+                        }, {
+                            label: 'With Extra Payments',
+                            data: currentBalanceHistory,
+                            borderColor: '#1D4ED8', // blue-700
+                            backgroundColor: 'rgba(29, 78, 216, 0.1)',
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 0,
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        scales: {
+                            x: { type: 'time', time: { unit: 'year' }, grid: { display: false }, ticks: { font: { size: 12 }}},
+                            y: { beginAtZero: true, ticks: { callback: (value) => `R${(value/1000)}k`, font: { size: 12 }}}
+                        },
+                        plugins: { legend: { position: 'bottom', labels: { padding: 20, usePointStyle: true }}}
+                    }
+                });
+            }
+
+            // --- EVENT LISTENERS ---
+            const inputs = [principalEl, interestRateEl, loanTermEl, paymentFrequencyEl, extraPaymentEl];
+            inputs.forEach(el => el.addEventListener('input', calculateLoanDetails));
+            
+            extraPaymentEl.addEventListener('input', (e) => {
+                extraPaymentValueEl.textContent = formatCurrency(e.target.value);
+            });
+
+            // --- INITIAL CALCULATION ---
+            calculateLoanDetails();
+        });
+    </script>
+
+</body>
+</html>
+
